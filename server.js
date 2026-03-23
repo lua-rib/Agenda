@@ -2,7 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
-mongoose.connect(process.env.CONNECTIONSTRING, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.CONNECTIONSTRING, 
+  { 
+    useNewUrlParser: true, 
+    useUnifiedTopology: true, 
+    useFindAndModify: false
+  })
   .then(() => {
     app.emit('pronto');
   })
@@ -17,11 +22,20 @@ const csrf = require('csurf');
 const { middlewareGlobal, checkCsrfError, csrfMiddleware } = require('./src/middlewares/middleware');
 
 app.use(
-  helmet.contentSecurityPolicy({
-    directives: {
-      "default-src": ["'self'"],
-      "script-src": ["'self'", "cdn.jsdelivr.net"],
-      "style-src": ["'self'", "cdn.jsdelivr.net", "'unsafe-inline'"],
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        "default-src": ["'self'"],
+        "script-src": ["'self'", "cdn.jsdelivr.net"],
+        "style-src": ["'self'", "cdn.jsdelivr.net", "'unsafe-inline'"],
+        "img-src": ["'self'", "data:", "http://gc.kis.v2.scr.kaspersky-labs.com"],
+        "connect-src": [
+          "'self'", 
+          "ws://gc.kis.v2.scr.kaspersky-labs.com", 
+          "http://gc.kis.v2.scr.kaspersky-labs.com",
+          "https://cdn.jsdelivr.net" // Permite baixar arquivos extras do Bootstrap
+        ],
+      },
     },
   })
 );
