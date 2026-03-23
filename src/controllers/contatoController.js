@@ -2,7 +2,7 @@ const Contato = require("../models/ContatoModel");
 
 exports.index = (req, res) => {
   res.render("contato", {
-    contato: {}
+    contato: {},
   });
 };
 
@@ -11,7 +11,7 @@ exports.register = async (req, res) => {
     const contato = new Contato(req.body);
     await contato.register();
 
-    const backURL = req.get('Referer') || '/contato/index';
+    const backURL = req.get("Referer") || "/contato/index";
 
     if (contato.errors.length > 0) {
       req.flash("errors", contato.errors);
@@ -19,20 +19,55 @@ exports.register = async (req, res) => {
       return;
     }
 
-    req.flash("success", "Contato registrado com sucesso.")
-    return req.session.save(() => res.redirect(`/contato/index/${contato.contato._id}`))
-
+    req.flash("success", "Contato registrado com sucesso.");
+    return req.session.save(() =>
+      res.redirect(`/contato/index/${contato.contato._id}`),
+    );
   } catch (e) {
     console.log(e);
     return res.render("404");
   }
 };
 
-exports.editIndex = async function(req, res) {
-    if(!req.parms.id) return res.render('404')
+exports.editIndex = async function (req, res) {
+  if (!req.params.id) return res.render("404");
 
-    const contato = await Contato.buscaPorId(req.params.id)
-    if(!contato) return res.render('404')
-    
-    res.render('contato', { contato })
-}
+  const contato = await Contato.buscaPorId(req.params.id);
+  if (!contato) return res.render("404");
+
+  res.render("contato", { contato });
+};
+
+exports.edit = async function (req, res) {
+  try {
+    if (!req.params.id) return res.render("404");
+    const contato = new Contato(req.body);
+    await contato.edit(req.params.id);
+
+    if (contato.errors.length > 0) {
+      req.flash("errors", contato.errors);
+      req.session.save(() => res.redirect(backURL));
+      return;
+    }
+
+    req.flash("success", "Contato editado com sucesso.");
+    return req.session.save(() =>
+      res.redirect(`/contato/index/${contato.contato._id}`),
+    );
+  } catch (e) {
+    console.log(e);
+    res.render("404");
+  }
+};
+
+exports.delete = async function (req, res) {
+  if (!req.params.id) return res.render("404");
+
+  const contato = await Contato.delete(req.params.id);
+  if (!contato) return res.render("404");
+
+  req.flash("success", "Contato apagado com sucesso.")
+
+  const backURL = req.get('Referer') || '/'
+  return req.session.save(() => res.redirect(backURL))
+};
