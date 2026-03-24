@@ -62,9 +62,9 @@ app.use(csrfMiddleware);
 app.use(checkCsrfError);
 app.use(routes);
 
-const port = process.env.PORT || 3000;
 app.on('pronto', () => {
-  app.listen(port, () => {
+  const port = process.env.PORT || 3000;
+  app.listen(port, '0.0.0.0', () => {
     console.log(`Servidor executando na porta ${port}`);
   });
 });
