@@ -2,12 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
-mongoose.connect(process.env.CONNECTIONSTRING, 
-  { 
-    useNewUrlParser: true, 
-    useUnifiedTopology: true, 
-    useFindAndModify: false
-  })
+mongoose.connect(process.env.CONNECTIONSTRING)
   .then(() => {
     app.emit('pronto');
   })
@@ -68,8 +63,9 @@ app.use(checkCsrfError);
 app.use(routes);
 
 app.on('pronto', () => {
-  app.listen(3000, () => {
-    console.log('Acessar http://localhost:3000');
-    console.log('Servidor executando na porta 3000');
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => {
+    console.log(`Servidor executando na porta ${port}`);
+    console.log(`Acesse: http://localhost:${port}`);
   });
 });
